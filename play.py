@@ -1,4 +1,6 @@
 from game import Game, Board, Snake, Coordinate
+from algorithm.closest_food_naive_algorithm import ClosestFoodNaiveAlgorithm
+from algorithm.closest_food_with_obstacles_algorithm import ClosestFoodWithObstaclesAlgorithm
 
 import random
 
@@ -9,6 +11,8 @@ random_tail = lambda: random.choice(["block-bum", "bolt", "curled", "fat-rattle"
 r = lambda: random.randint(0,255)
 random_color = lambda: '#%02X%02X%02X' % (r(),r(),r())
 
+alg = ClosestFoodWithObstaclesAlgorithm()
+
 def start(game):
     # (if id in games)
     games[game.id] = game
@@ -18,34 +22,10 @@ def start(game):
     }
 
 def end(game_id):
-    games.pop(game_id)
-
-up = lambda c: Coordinate(c.x, c.y - 1)
-down = lambda c: Coordinate(c.x, c.y + 1)
-left = lambda c: Coordinate(c.x - 1, c.y)
-right = lambda c: Coordinate(c.x + 1, c.y)
+    # games.pop(game_id)
+    return
 
 def move(snake, board, game):
     head = snake.body[0]
-    possible_moves = {
-        'right': right(head),
-        'left': left(head),
-        'down': down(head),
-        'up': up(head)
-    }
-    possible_moves = {move: coord for move, coord in possible_moves.items() if is_valid_coordinate(coord, board)}
-    closest_food = min(board.food, key=lambda food: abs(food.x - head.x) + abs(food.y - head.y))
-    best_move = min(possible_moves.keys(), key=lambda move: abs(closest_food.x - possible_moves[move].x) + abs(closest_food.y - possible_moves[move].y))
-    return {'move': best_move}
+    return {'move': alg.next_move(head, board)}
     
-def is_valid_coordinate(coord, board):
-    if coord.x < 0 or coord.y < 0 or coord.x >= board.width or coord.y >= board.height:
-        # out of bounds
-        return False
-    
-    for snake in board.snakes:
-        for c in snake.body:
-            if coord == c:
-                # collision
-                return False
-    return True
